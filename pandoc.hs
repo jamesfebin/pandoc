@@ -184,8 +184,7 @@ data Opt = Opt
     , optHighlightStyle    :: Style   -- ^ Style to use for highlighted code
     , optTopLevelDivision  :: TopLevelDivision -- ^ Type of the top-level divisions
     , optHTMLMathMethod    :: HTMLMathMethod -- ^ Method to print HTML math
-    , optReferenceODT      :: Maybe FilePath -- ^ Path of reference.odt
-    , optReferenceDocx     :: Maybe FilePath -- ^ Path of reference.docx
+    , optReferenceDoc      :: Maybe FilePath -- ^ Path of reference doc
     , optEpubStylesheet    :: Maybe String   -- ^ EPUB stylesheet
     , optEpubMetadata      :: String  -- ^ EPUB metadata
     , optEpubFonts         :: [FilePath] -- ^ EPUB fonts to embed
@@ -251,8 +250,7 @@ defaultOpts = Opt
     , optHighlightStyle        = pygments
     , optTopLevelDivision      = TopLevelDefault
     , optHTMLMathMethod        = PlainMath
-    , optReferenceODT          = Nothing
-    , optReferenceDocx         = Nothing
+    , optReferenceDoc          = Nothing
     , optEpubStylesheet        = Nothing
     , optEpubMetadata          = ""
     , optEpubFonts             = []
@@ -707,19 +705,12 @@ options =
                   "URL")
                  "" -- "Link to CSS style sheet"
 
-    , Option "" ["reference-odt"]
+    , Option "" ["reference-doc"]
                  (ReqArg
                   (\arg opt ->
-                    return opt { optReferenceODT = Just arg })
+                    return opt { optReferenceDoc = Just arg })
                   "FILENAME")
-                 "" -- "Path of custom reference.odt"
-
-    , Option "" ["reference-docx"]
-                 (ReqArg
-                  (\arg opt ->
-                    return opt { optReferenceDocx = Just arg })
-                  "FILENAME")
-                 "" -- "Path of custom reference.docx"
+                 "" -- "Path of custom reference doc"
 
     , Option "" ["epub-stylesheet"]
                  (ReqArg
@@ -1189,8 +1180,7 @@ convertWithOpts opts args = do
               , optHighlightStyle        = highlightStyle
               , optTopLevelDivision      = topLevelDivision
               , optHTMLMathMethod        = mathMethod'
-              , optReferenceODT          = referenceODT
-              , optReferenceDocx         = referenceDocx
+              , optReferenceDoc          = referenceDoc
               , optEpubStylesheet        = epubStylesheet
               , optEpubMetadata          = epubMetadata
               , optEpubFonts             = epubFonts
@@ -1484,8 +1474,7 @@ convertWithOpts opts args = do
                             writerEpubFonts        = epubFonts,
                             writerEpubChapterLevel = epubChapterLevel,
                             writerTOCDepth         = epubTOCDepth,
-                            writerReferenceODT     = referenceODT,
-                            writerReferenceDocx    = referenceDocx,
+                            writerReferenceDoc     = referenceDoc,
                             writerMediaBag         = media,
                             writerVerbose          = verbose,
                             writerLaTeXArgs        = latexEngineArgs
