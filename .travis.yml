@@ -68,6 +68,7 @@ matrix:
   #   os: osx
 
   allow_failures:
+  - env: BUILD=cabal GHCVER=7.8.4 CABALVER=1.18
   - env: BUILD=cabal GHCVER=head  CABALVER=head
   - env: BUILD=stack ARGS="--resolver nightly"
 
