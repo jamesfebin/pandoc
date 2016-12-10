@@ -1438,7 +1438,8 @@ convertWithOpts opts args = do
         mapM_ (warn . ("Ignoring: " ++)) xs
         liftIO $ B.readFile x
 
-  let runIO' f = do
+  let runIO' :: PandocIO a -> IO a
+      runIO' f = do
         (res, warnings) <- runIOorExplode $ do
                              x <- f
                              ws <- getWarnings
