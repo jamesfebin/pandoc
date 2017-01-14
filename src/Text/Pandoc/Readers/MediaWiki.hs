@@ -676,7 +676,7 @@ strong = B.strong <$> nested (inlinesBetween start end)
 
 doubleQuotes :: PandocMonad m => MWParser m Inlines
 doubleQuotes = B.doubleQuoted . trimInlines . mconcat <$> try
- ((getState >>= guard . readerSmart . mwOptions) *>
+ ( guardEnabled Ext_smart *>
    openDoubleQuote *> manyTill inline closeDoubleQuote )
     where openDoubleQuote = char '"' <* lookAhead alphaNum
           closeDoubleQuote = char '"' <* notFollowedBy alphaNum
