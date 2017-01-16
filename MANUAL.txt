@@ -1279,6 +1279,9 @@ LaTeX variables are used when [creating a PDF].
 :   allows font encoding to be specified through `fontenc` package (with `pdflatex`);
     default is `T1` (see guide to [LaTeX font encodings])
 
+`microtypeoptions`
+:    options to pass to the microtype package
+
 `colorlinks`
 :   add color to link text; automatically enabled if any of `linkcolor`, `citecolor`,
     `urlcolor`, or `toccolor` are set
@@ -3352,6 +3355,14 @@ field and put the citations there:
 In this example, the document will contain a citation for `item3`
 only, but the bibliography will contain entries for `item1`, `item2`, and
 `item3`.
+
+It is possible to create a bibliography with all the citations,
+whether or not they appear in the document, by using a wildcard:
+
+    ---
+    nocite: |
+      @*
+    ...
 
 For LaTeX or PDF output, you can also use [`natbib`] or [`biblatex`]
 to render bibliography. In order to do so, specify bibliography files as

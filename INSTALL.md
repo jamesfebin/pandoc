@@ -7,12 +7,34 @@
   - For PDF output, you'll also need to install LaTeX.
     We recommend [MiKTeX](http://miktex.org/).
 
+  - If you'd prefer, you can extract the pandoc and pandoc-citeproc
+    executables from the MSI and copy them directly to any directory,
+    without running the installer.  Here is an example showing how to
+    extract the executables from the pandoc-1.19.1 installer and copy
+    them to `C:\Utils\Console\`:
+
+        mkdir "%TEMP%\pandoc\"
+        start /wait msiexec.exe /a pandoc-1.19.1-windows.msi /qn targetdir="%TEMP%\pandoc\"
+        copy /y "%TEMP%\pandoc\pandoc.exe" C:\Utils\Console\
+        copy /y "%TEMP%\pandoc\pandoc-citeproc.exe" C:\Utils\Console\
+        rmdir /s /q "%TEMP%\pandoc\"
+
 ## Mac OS X
 
   - There is a package installer at pandoc's [download page].
     If you later want to uninstall the package, you can do so
     by downloading [this script][uninstaller]
     and running it with `perl uninstall-pandoc.pl`.
+
+  - It is possible to extract the pandoc and pandoc-citeproc
+    executables from the osx pkg file, if you'd rather not run
+    the installer.  To do this (for the version 1.19.1 package):
+
+        mkdir pandoc-extract
+        cd pandoc-extract
+        xar -x ../pandoc-1.19.1-osx.pkg
+        cat pandoc.pkg/Payload | gunzip -dc | cpio -i
+        # executables are now in ./usr/bin/, man pages in ./usr/share/man
 
   - You can also install pandoc using
     [homebrew](http://brew.sh): `brew install pandoc`.
@@ -39,7 +61,7 @@
         sudo dpkg -i $DEB
 
     where `$DEB` is the path to the downloaded deb, will
-    will install the `pandoc` and `pandoc-citeproc` executables
+    install the `pandoc` and `pandoc-citeproc` executables
     and man pages.  If you use an RPM-based distro, you may be
     able to install this deb using `alien`, or try
 
@@ -160,16 +182,16 @@ The easiest way to build pandoc from source is to use [stack]:
     use the locale-sensitive unicode collation algorithm instead,
     specify the `unicode_collation` flag:
 
-       cabal install pandoc-citeproc -funicode_collation
+        cabal install pandoc-citeproc -funicode_collation
 
     Note that this requires the `text-icu` library, which in turn
     depends on the C library `icu4c`.  Installation directions
     vary by platform.  Here is how it might work on OSX with homebrew:
 
-       brew install icu4c
-       cabal install --extra-lib-dirs=/usr/local/Cellar/icu4c/51.1/lib \
-         --extra-include-dirs=/usr/local/Cellar/icu4c/51.1/include \
-         -funicode_collation text-icu pandoc-citeproc
+        brew install icu4c
+        cabal install --extra-lib-dirs=/usr/local/Cellar/icu4c/51.1/lib \
+          --extra-include-dirs=/usr/local/Cellar/icu4c/51.1/include \
+          -funicode_collation text-icu pandoc-citeproc
 
 6.  The `pandoc.1` man page will be installed automatically.  cabal shows
     you where it is installed: you may need to set your `MANPATH`

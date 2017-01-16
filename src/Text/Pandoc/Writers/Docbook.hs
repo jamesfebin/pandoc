@@ -125,7 +125,10 @@ elementToDocbook opts lvl (Sec _ _num (id',_,_) title elements) = do
                                               then "section"
                                               else "sect" ++ show n
                  _                    -> "simplesect"
-      idAttr = [("id", writerIdentifierPrefix opts ++ id') | not (null id')]
+      idName = if writerDocbook5 opts
+                 then "xml:id"
+                 else "id"
+      idAttr = [(idName, writerIdentifierPrefix opts ++ id') | not (null id')]
       nsAttr = if writerDocbook5 opts && lvl == 0 then [("xmlns", "http://docbook.org/ns/docbook"),("xmlns:xlink", "http://www.w3.org/1999/xlink")]
                                       else []
       attribs = nsAttr ++ idAttr
@@ -368,6 +371,7 @@ inlineToDocbook _ (RawInline f x)
   | f == "html" || f == "docbook" = return $ text x
   | otherwise                     = return empty
 inlineToDocbook _ LineBreak = return $ text "\n"
+inlineToDocbook _ PageBreak = return empty
 inlineToDocbook _ Space = return space
 -- because we use \n for LineBreak, we can't do soft breaks:
 inlineToDocbook _ SoftBreak = return space

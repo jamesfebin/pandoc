@@ -10,7 +10,7 @@ import Data.List (intersperse)
 
 org :: String -> Pandoc
 org = purely $ readOrg def{ readerExtensions = getDefaultExtensions "org" }
-  
+
 orgSmart :: String -> Pandoc
 orgSmart = purely $ readOrg def { readerExtensions =
                      enableExtension Ext_smart $ getDefaultExtensions "org" }
@@ -47,6 +47,10 @@ tests =
       , "Strong Emphasis" =:
           "/*strength*/" =?>
           para (emph . strong $ "strength")
+
+      , "Emphasized Strong preceded by space" =:
+          " */super/*" =?>
+          para (strong . emph $ "super")
 
       , "Strikeout" =:
           "+Kill Bill+" =?>
@@ -330,6 +334,18 @@ tests =
                        , citationHash = 0
                        }
         in (para $ cite [citation] "cite:pandoc")
+
+      , "Org-ref simple citation succeeded by comma" =:
+        "cite:pandoc," =?>
+        let citation = Citation
+                       { citationId = "pandoc"
+                       , citationPrefix = mempty
+                       , citationSuffix = mempty
+                       , citationMode = AuthorInText
+                       , citationNoteNum = 0
+                       , citationHash = 0
+                       }
+        in (para $ cite [citation] "cite:pandoc" <> str ",")
 
       , "Org-ref simple citep citation" =:
         "citep:pandoc" =?>

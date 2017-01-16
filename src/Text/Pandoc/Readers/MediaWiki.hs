@@ -680,4 +680,3 @@ doubleQuotes = B.doubleQuoted . trimInlines . mconcat <$> try
    openDoubleQuote *> manyTill inline closeDoubleQuote )
     where openDoubleQuote = char '"' <* lookAhead alphaNum
           closeDoubleQuote = char '"' <* notFollowedBy alphaNum
-

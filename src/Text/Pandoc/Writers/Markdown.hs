@@ -1038,6 +1038,7 @@ inlineToMarkdown opts SoftBreak = do
                 WrapNone     -> space'
                 WrapAuto     -> space'
                 WrapPreserve -> cr
+inlineToMarkdown _ PageBreak = return empty
 inlineToMarkdown opts (Cite [] lst) = inlineListToMarkdown opts lst
 inlineToMarkdown opts (Cite (c:cs) lst)
   | not (isEnabled Ext_citations opts) = inlineListToMarkdown opts lst

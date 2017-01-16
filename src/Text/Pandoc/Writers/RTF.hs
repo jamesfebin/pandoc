@@ -396,6 +396,7 @@ inlineToRTF (RawInline f str)
   | otherwise         = return ""
 inlineToRTF (LineBreak) = return "\\line "
 inlineToRTF SoftBreak = return " "
+inlineToRTF PageBreak = return "\\page "
 inlineToRTF Space = return " "
 inlineToRTF (Link _ text (src, _)) = do
   contents <- inlinesToRTF text

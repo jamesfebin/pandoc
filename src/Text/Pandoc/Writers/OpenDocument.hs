@@ -36,6 +36,7 @@ import Text.Pandoc.XML
 import Text.Pandoc.Shared (linesToPara)
 import Text.Pandoc.Templates (renderTemplate')
 import Text.Pandoc.Writers.Math
+import Text.Pandoc.Readers.Odt.StyleReader
 import Text.Pandoc.Pretty
 import Text.Printf ( printf )
 import Control.Arrow ( (***), (>>>) )
@@ -300,9 +301,7 @@ blockToOpenDocument o bs
                                   else inParagraphTags =<< inlinesToOpenDocument o b
     | Para [Image attr c (s,'f':'i':'g':':':t)] <- bs
                              = figure attr c s t
-    | Para           b <- bs = if null b
-                                  then return empty
-                                  else inParagraphTags =<< inlinesToOpenDocument o b
+    | Para           b <- bs = paragraph b
     | LineBlock      b <- bs = blockToOpenDocument o $ linesToPara b
     | Div _ xs         <- bs = blocksToOpenDocument o xs
     | Header     i _ b <- bs = setFirstPara >>
@@ -362,6 +361,22 @@ blockToOpenDocument o bs
         captionDoc <- withParagraphStyle o "FigureCaption" [Para caption]
         return $ imageDoc $$ captionDoc
 
+      endsWithPageBreak []          = False
+      endsWithPageBreak [PageBreak] = True
+      endsWithPageBreak (_ : xs)    = endsWithPageBreak xs
+
+      paragraph :: PandocMonad m => [Inline] -> OD m Doc
+      paragraph []                                          = return empty
+      paragraph (PageBreak : rest) | endsWithPageBreak rest = paraWithBreak PageBoth rest
+      paragraph (PageBreak : rest)                          = paraWithBreak PageBefore rest
+      paragraph inlines | endsWithPageBreak inlines         = paraWithBreak PageAfter inlines
+      paragraph inlines                                     = inParagraphTags =<< inlinesToOpenDocument o inlines
+
+      paraWithBreak :: PandocMonad m => ParaBreak -> [Inline] -> OD m Doc
+      paraWithBreak breakKind bs = do
+        pn <- paraBreakStyle breakKind
+        withParagraphStyle o ("P" ++ show pn) [Para bs]
+
 colHeadsToOpenDocument :: PandocMonad m
                        => WriterOptions -> String -> [String] -> [[Block]]
                        -> OD m Doc
@@ -399,6 +414,7 @@ inlineToOpenDocument o ils
      | writerWrapText o == WrapPreserve
                   -> inTextStyle (preformatted "\n")
      | otherwise  -> inTextStyle space
+    PageBreak     -> return empty -- already handled
     Span _ xs     -> inlinesToOpenDocument o xs
     LineBreak     -> return $ selfClosingTag "text:line-break" []
     Str         s -> inTextStyle $ handleSpaces $ escapeStringForXML s
@@ -545,6 +561,13 @@ paraStyle parent attrs = do
 paraListStyle :: PandocMonad m => Int -> OD m Int
 paraListStyle l =
   paraStyle "Text_20_body" [("style:list-style-name", "L" ++ show l )]
+
+paraBreakStyle :: PandocMonad m => ParaBreak -> OD m Int
+paraBreakStyle PageBefore = paraStyle "Text_20_body" [("fo:break-before", "page")]
+paraBreakStyle PageAfter  = paraStyle "Text_20_body" [("fo:break-after", "page")]
+paraBreakStyle PageBoth   = paraStyle "Text_20_body" [("fo:break-before", "page"), ("fo:break-after", "page")]
+paraBreakStyle AutoNone   = paraStyle "Text_20_body" []
+
 
 paraTableStyles :: String -> Int -> [Alignment] -> [(String, Doc)]
 paraTableStyles _ _ [] = []

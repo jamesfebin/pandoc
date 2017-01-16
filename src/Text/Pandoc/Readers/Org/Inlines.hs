@@ -200,7 +200,9 @@ orgRefCite = try $ choice
 normalOrgRefCite :: PandocMonad m => OrgParser m (F [Citation])
 normalOrgRefCite = try $ do
   mode <- orgRefCiteMode
-  sequence <$> sepBy1 (orgRefCiteList mode) (char ',')
+  firstCitation <- orgRefCiteList mode
+  moreCitations <- many (try $ char ',' *> orgRefCiteList mode)
+  return $ sequence (firstCitation:moreCitations)
  where
    -- | A list of org-ref style citation keys, parsed as citation of the given
    -- citation mode.
@@ -656,6 +658,9 @@ emphasisStart c = try $ do
   char c
   lookAhead (noneOf emphasisForbiddenBorderChars)
   pushToInlineCharStack c
+  -- nested inlines are allowed, so mark this position as one which might be
+  -- followed by another inline.
+  updateLastPreCharPos
   return c
 
 -- | Parses the closing character of emphasis
